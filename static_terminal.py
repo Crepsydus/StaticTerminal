@@ -158,11 +158,11 @@ class StaticTerminal:
                         if field["border"]:
                             if ((col == field["start"][0] or col == field["end"][0])
                                     and (line == field["start"][1] or line == field["end"][1])):
-                                final_char = field["border"] + "+" + c.F.reset()
+                                final_char = field["border"] + "+" + c.F.reset() + c.B.reset()
                             elif col == field["start"][0] or col == field["end"][0]:
-                                final_char = field["border"] + "|" + c.F.reset()
+                                final_char = field["border"] + "|" + c.F.reset() + c.B.reset()
                             elif line == field["start"][1] or line == field["end"][1]:
-                                final_char = field["border"] + "—" + c.F.reset()
+                                final_char = field["border"] + "—" + c.F.reset() + c.B.reset()
                             elif (field["start"][0] < col < field["end"][0]
                                   and field["start"][1] < line < field["end"][1]):
                                 cline -= 1
@@ -187,7 +187,7 @@ class StaticTerminal:
                 col += 1
                 string += final_char
 
-            full_print += string + "\n"
+            full_print += string + "\n" + c.F.reset() + c.B.reset()
 
         print(full_print, end="")
 
