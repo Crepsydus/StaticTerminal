@@ -58,7 +58,13 @@ class _ScriptReceiver:
         """
         Start your script in background, while stdout is streamlined to this script's output.\n
         If you pass specific command in script's output (print), it will execute and won't print
-        here (this is the only way to call anything in this script from the other script). All commands start with '/exec_' and end with '_exec/' by default, but you can change it with 'custom_trigger' argument. You can stack several commands by separator '||' \n
+        here (this is the only way to call anything in this script from the other script). All commands start with '/exec_' and end with '_exec/' by default, but you can change it with 'custom_trigger' argument. You can stack several commands by separator '||'. \n
+        Example command pass: "/exec_roll((0;;Some text))_exec/" \n
+        Main methods' shortened versions for command passes:
+         - add_rect = add \n
+         - roll_string = roll \n
+         - update_content = updc \n
+         - update_border = updb \n
         Keyboard interrupt will automatically terminate both scripts\n
         :param script_path: path to your Python script
         :param quit_on_error: program will quit() after catching script exit (Not alive).  Defaults to True
@@ -158,23 +164,23 @@ class StaticTerminal:
                         if field["border"]:
                             if ((col == field["start"][0] or col == field["end"][0])
                                     and (line == field["start"][1] or line == field["end"][1])):
-                                final_char = field["border"] + "+" + c.F.reset() + c.B.reset()
+                                final_char = field["border"] + "+" + c.F.reset()
                             elif col == field["start"][0] or col == field["end"][0]:
-                                final_char = field["border"] + "|" + c.F.reset() + c.B.reset()
+                                final_char = field["border"] + "|" + c.F.reset()
                             elif line == field["start"][1] or line == field["end"][1]:
-                                final_char = field["border"] + "—" + c.F.reset() + c.B.reset()
+                                final_char = field["border"] + "—" + c.F.reset()
                             elif (field["start"][0] < col < field["end"][0]
                                   and field["start"][1] < line < field["end"][1]):
                                 cline -= 1
                                 ccol -= 1
 
-                                # print(ccol,bonus,ccol + bonus, field["content"][cline][ccol + bonus])
                                 final_char = field["content"][cline][ccol + bonus]
 
                         else:
                             final_char = field["content"][cline][ccol + bonus]
 
-                        if final_char == "\033":
+
+                        while final_char[-1] == "\033":
                             while final_char[-1] != "m":
                                 fields_bonus[fi] += 1
                                 bonus += 1
@@ -183,11 +189,10 @@ class StaticTerminal:
                             bonus += 1
                             final_char += field["content"][cline][ccol + bonus]
 
-
                 col += 1
                 string += final_char
 
-            full_print += string + "\n" + c.F.reset() + c.B.reset()
+            full_print += string + c.F.reset() + "\n"
 
         print(full_print, end="")
 
@@ -211,9 +216,9 @@ class StaticTerminal:
         s.start(script_path, custom_trigger=custom_trigger, variables=variables)
 
     def execute(self, command:str):
-        cs = command.split("(")
+        cs = command.split("((")
         name = cs[0]
-        params = cs[1].split(")")[0].split(";;")
+        params = cs[1].split("))")[0].split(";;")
         if name == "roll":
             self.roll_string(params[0], params[1])
         if name == "add":
