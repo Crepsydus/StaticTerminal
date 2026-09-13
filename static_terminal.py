@@ -100,7 +100,6 @@ class _ScriptReceiver:
 
                 for com in com_all:
                     self.parent.execute(com)
-                self.parent.press()
 
 
             if self.process.poll() is not None:
@@ -194,7 +193,7 @@ class StaticTerminal:
 
             full_print += string + c.F.reset() + "\n"
 
-        print(full_print, end="")
+        print(full_print, end="", flush=True)
 
     def update_content(self, name:str, line_i:int, content:str, custom_col:int=0):
         con_width = visible_len(self.fields[name]["content"][0])
@@ -207,8 +206,14 @@ class StaticTerminal:
     def roll_string(self, name:str, content:str):
         self.fields[name]["content"].pop(0)
         con_width = visible_len(self.fields[name]["content"][0])
-        new_str = content + " "*(con_width - visible_len(content))
-        self.fields[name]["content"].append(new_str)
+        new_str = content
+        while visible_len(new_str) > con_width:
+            self.fields[name]["content"].append(new_str[:con_width])
+            self.fields[name]["content"].pop(0)
+            new_str = new_str[con_width:]
+        else:
+            new_str = new_str + " " * (con_width - visible_len(new_str))
+            self.fields[name]["content"].append(new_str)
         # print(len(content), visible_len(content), con_width)
 
     def start(self, script_path:str, custom_trigger:str="exec", variables:list=[]):
@@ -233,3 +238,5 @@ class StaticTerminal:
                 self.update_content(params[0], int(params[1]), params[2])
         if name == "updb":
             self.update_border(params[0], params[1])
+        if name == "press":
+            self.press()
