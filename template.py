@@ -6,7 +6,7 @@ si = sp.STARTUPINFO()
 si.dwFlags |= sp.STARTF_USESHOWWINDOW
 si.wShowWindow = 3
 process = sp.Popen(
-            [executable, '-u', "starter.py", "test.py"],
+            [executable, '-u', "script.py", "1"],
             creationflags=sp.CREATE_NEW_CONSOLE,
             startupinfo=si,
         )

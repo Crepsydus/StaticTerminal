@@ -17,95 +17,95 @@ def visible_len(s):
     return l
 
 
-def add_wrap(self, name:str, x1: int, y1: int,
-                        x2: int, y2: int, has_border:bool,
-                        border_color_code: str = None, custom_trigger: str = "e"):
-    return f"/{custom_trigger}_add({name};;{x1};;{y1};;{x2};;{y2};;{int(has_border)};;{border_color_code})_{custom_trigger}/"
+# def add_wrap(self, name:str, x1: int, y1: int,
+#                         x2: int, y2: int, has_border:bool,
+#                         border_color_code: str = None, custom_trigger: str = "e"):
+#     return f"/{custom_trigger}_add({name};;{x1};;{y1};;{x2};;{y2};;{int(has_border)};;{border_color_code})_{custom_trigger}/"
+#
+#
+# def updc_wrap(self, name:str, line_i:int, content:str, custom_col:int=0, custom_trigger: str = "e"):
+#     return f"/{custom_trigger}_updc({name};;{line_i};;{content};;{custom_col})_{custom_trigger}/"
+#
+#
+# def updb_wrap(self, name:str, new_border:str, custom_trigger: str = "e"):
+#     return f"/{custom_trigger}_updb({name};;{new_border})_{custom_trigger}/"
+#
+#
+# def roll_wrap(self, name:str, content:str, custom_trigger: str = "e"):
+#     return f"/{custom_trigger}_roll({name};;{content})_{custom_trigger}/"
 
 
-def updc_wrap(self, name:str, line_i:int, content:str, custom_col:int=0, custom_trigger: str = "e"):
-    return f"/{custom_trigger}_updc({name};;{line_i};;{content};;{custom_col})_{custom_trigger}/"
-
-
-def updb_wrap(self, name:str, new_border:str, custom_trigger: str = "e"):
-    return f"/{custom_trigger}_updb({name};;{new_border})_{custom_trigger}/"
-
-
-def roll_wrap(self, name:str, content:str, custom_trigger: str = "e"):
-    return f"/{custom_trigger}_roll({name};;{content})_{custom_trigger}/"
-
-
-class _ScriptReceiver:
-    """
-    A reading&printing object, used to capture custom script's output into streamline, catching StaticTerminal commands. \n
-    You should not create this object in your script. Use 'StaticTerminal' instead.
-    """
-    process = None
-
-    si = None
-    pep = None
-
-    parent = None
-
-    def __init__(self, parent, python_exec_path:str=None):
-        self.parent = parent
-        if python_exec_path:
-            self.pep = python_exec_path
-        else:
-            self.pep = sys.executable
-
-    def start(self, script_path:str, quit_on_error:bool=True, custom_trigger="exec", variables:list=[]):
-        """
-        Start your script in background, while stdout is streamlined to this script's output.\n
-        If you pass specific command in script's output (print), it will execute and won't print
-        here (this is the only way to call anything in this script from the other script). All commands start with '/exec_' and end with '_exec/' by default, but you can change it with 'custom_trigger' argument. You can stack several commands by separator '||'. \n
-        Example command pass: "/exec_roll((0;;Some text))_exec/" \n
-        Main methods' shortened versions for command passes:
-         - add_rect = add \n
-         - roll_string = roll \n
-         - update_content = updc \n
-         - update_border = updb \n
-        Keyboard interrupt will automatically terminate both scripts\n
-        :param script_path: path to your Python script
-        :param quit_on_error: program will quit() after catching script exit (Not alive).  Defaults to True
-        :param custom_trigger: change triggering string combination for executing StaticTerminal commands. Commands start with '/{custom_trigger}_' and end with '_{custom_trigger}/'. Defaults to 'exec'
-        :param variables: custom env variables
-        :return: None
-        """
-        args = [self.pep, "-u", script_path]
-        for env in variables:
-            args.append(env)
-        self.process = subprocess.Popen(
-            args,
-            #creationflags=subprocess.CREATE_NEW_CONSOLE,
-            startupinfo=self.si,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-
-        while True:
-            for line in self.process.stdout:
-                lraw = line.strip()
-                lout = ""
-                com_all = []
-                if "_"+custom_trigger+"/" in lraw and "/"+custom_trigger+"_" in lraw:
-                    split_l = lraw.split("/"+custom_trigger+"_")
-                    lout += split_l[0]
-                    for i in split_l[1:]:
-                        i_s = i.split("_"+custom_trigger+"/")
-                        lout += i_s[1]
-                        com_all.extend(i_s[0].split("||"))
-
-                for com in com_all:
-                    self.parent.execute(com)
-
-
-            if self.process.poll() is not None:
-                print(c.F.color(1) + "Not alive (Terminating process)")
-                if quit_on_error:
-                    quit()
+# class _ScriptReceiver:
+#     """
+#     A reading&printing object, used to capture custom script's output into streamline, catching StaticTerminal commands. \n
+#     You should not create this object in your script. Use 'StaticTerminal' instead.
+#     """
+#     process = None
+#
+#     si = None
+#     pep = None
+#
+#     parent = None
+#
+#     def __init__(self, parent, python_exec_path:str=None):
+#         self.parent = parent
+#         if python_exec_path:
+#             self.pep = python_exec_path
+#         else:
+#             self.pep = sys.executable
+#
+#     def start(self, script_path:str, quit_on_error:bool=True, custom_trigger="exec", variables:list=[]):
+#         """
+#         Start your script in background, while stdout is streamlined to this script's output.\n
+#         If you pass specific command in script's output (print), it will execute and won't print
+#         here (this is the only way to call anything in this script from the other script). All commands start with '/exec_' and end with '_exec/' by default, but you can change it with 'custom_trigger' argument. You can stack several commands by separator '||'. \n
+#         Example command pass: "/exec_roll((0;;Some text))_exec/" \n
+#         Main methods' shortened versions for command passes:
+#          - add_rect = add \n
+#          - roll_string = roll \n
+#          - update_content = updc \n
+#          - update_border = updb \n
+#         Keyboard interrupt will automatically terminate both scripts\n
+#         :param script_path: path to your Python script
+#         :param quit_on_error: program will quit() after catching script exit (Not alive).  Defaults to True
+#         :param custom_trigger: change triggering string combination for executing StaticTerminal commands. Commands start with '/{custom_trigger}_' and end with '_{custom_trigger}/'. Defaults to 'exec'
+#         :param variables: custom env variables
+#         :return: None
+#         """
+#         args = [self.pep, "-u", script_path]
+#         for env in variables:
+#             args.append(env)
+#         self.process = subprocess.Popen(
+#             args,
+#             #creationflags=subprocess.CREATE_NEW_CONSOLE,
+#             startupinfo=self.si,
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.STDOUT,
+#             text=True,
+#             bufsize=1,
+#         )
+#
+#         while True:
+#             for line in self.process.stdout:
+#                 lraw = line.strip()
+#                 lout = ""
+#                 com_all = []
+#                 if "_"+custom_trigger+"/" in lraw and "/"+custom_trigger+"_" in lraw:
+#                     split_l = lraw.split("/"+custom_trigger+"_")
+#                     lout += split_l[0]
+#                     for i in split_l[1:]:
+#                         i_s = i.split("_"+custom_trigger+"/")
+#                         lout += i_s[1]
+#                         com_all.extend(i_s[0].split("||"))
+#
+#                 for com in com_all:
+#                     self.parent.execute(com)
+#
+#
+#             if self.process.poll() is not None:
+#                 print(c.F.color(1) + "Not alive (Terminating process)")
+#                 if quit_on_error:
+#                     quit()
 
 class StaticTerminal:
     fields = {}
@@ -116,18 +116,26 @@ class StaticTerminal:
     full_height = 29
 
     maximized = False
+    pep = ""
+    auto_update = True
 
-    def __init__(self, maximized:bool = False):
+    def __init__(self, maximized:bool = False, python_exec_path:str = "", auto_update:bool = True):
         self.maximized = maximized
         if self.maximized:
             self.add_rect("0", 0,0, self.full_width_m, self.full_height_m, False)
         else:
             self.add_rect("0",0,0, self.full_width, self.full_height, False)
 
+        if python_exec_path != "":
+            self.pep = python_exec_path
+        else:
+            self.pep = sys.executable
+
+        self.auto_update = auto_update
 
     def add_rect(self, name:str, x1: int, y1: int,
                         x2: int, y2: int, has_border:bool,
-                        border_color_code: str = None):
+                        border_color_code: str = ""):
         width = (x2 - x1)+1
         height = (y2 - y1)+1
         self.fields[name] = {"start": (x1,y1),
@@ -136,6 +144,8 @@ class StaticTerminal:
                             "content": [" "*width for i in range(height)] if not has_border
                                     else [" " * (width-2) for i in range(height-2)],
                            }
+        if self.auto_update:
+            self.press()
 
     def press(self):
         if self.maximized:
@@ -195,15 +205,19 @@ class StaticTerminal:
 
         print(full_print, end="", flush=True)
 
-    def update_content(self, name:str, line_i:int, content:str, custom_col:int=0):
+    def edit(self, name:str, line_i:int, content:str, custom_col:int=0):
         con_width = visible_len(self.fields[name]["content"][0])
         new_str = " "*custom_col + content + " "*(con_width - (visible_len(content)+custom_col))
         self.fields[name]["content"][line_i] = new_str
+        if self.auto_update:
+            self.press()
 
-    def update_border(self, name:str, new_border:str):
+    def edit_border(self, name:str, new_border:str):
         self.fields[name]["border"] = new_border
+        if self.auto_update:
+            self.press()
 
-    def roll_string(self, name:str, content:str):
+    def roll(self, name:str, content:str):
         self.fields[name]["content"].pop(0)
         con_width = visible_len(self.fields[name]["content"][0])
         new_str = content
@@ -214,29 +228,31 @@ class StaticTerminal:
         else:
             new_str = new_str + " " * (con_width - visible_len(new_str))
             self.fields[name]["content"].append(new_str)
+        if self.auto_update:
+            self.press()
         # print(len(content), visible_len(content), con_width)
 
-    def start(self, script_path:str, custom_trigger:str="exec", variables:list=[]):
-        s = _ScriptReceiver(self)
-        s.start(script_path, custom_trigger=custom_trigger, variables=variables)
+    # def start(self, script_path:str, custom_trigger:str="exec", variables:list=[]):
+    #     s = _ScriptReceiver(self)
+    #     s.start(script_path, custom_trigger=custom_trigger, variables=variables)
 
-    def execute(self, command:str):
-        cs = command.split("((")
-        name = cs[0]
-        params = cs[1].split("))")[0].split(";;")
-        if name == "roll":
-            self.roll_string(params[0], params[1])
-        if name == "add":
-            if len(params) == 7:
-                self.add_rect(params[0], int(params[1]), int(params[2]) ,int(params[3]), int(params[4]), bool(int(params[5])), border_color_code=params[6])
-            else:
-                self.add_rect(params[0], int(params[1]), int(params[2]), int(params[3]), int(params[4]), bool(int(params[5])))
-        if name == "updc":
-            if len(params) == 4:
-                self.update_content(params[0], int(params[1]), params[2], custom_col=int(params[3]))
-            else:
-                self.update_content(params[0], int(params[1]), params[2])
-        if name == "updb":
-            self.update_border(params[0], params[1])
-        if name == "press":
-            self.press()
+    # def execute(self, command:str):
+    #     cs = command.split("((")
+    #     name = cs[0]
+    #     params = cs[1].split("))")[0].split(";;")
+    #     if name == "roll":
+    #         self.roll(params[0], params[1])
+    #     if name == "add":
+    #         if len(params) == 7:
+    #             self.add_rect(params[0], int(params[1]), int(params[2]) ,int(params[3]), int(params[4]), bool(int(params[5])), border_color_code=params[6])
+    #         else:
+    #             self.add_rect(params[0], int(params[1]), int(params[2]), int(params[3]), int(params[4]), bool(int(params[5])))
+    #     if name == "edit":
+    #         if len(params) == 4:
+    #             self.edit(params[0], int(params[1]), params[2], custom_col=int(params[3]))
+    #         else:
+    #             self.edit(params[0], int(params[1]), params[2])
+    #     if name == "edbo":
+    #         self.edit_border(params[0], params[1])
+    #     if name == "press":
+    #         self.press()
